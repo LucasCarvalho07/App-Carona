@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { sileo } from 'sileo';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { Papel, StatusUsuario, type Usuario } from '@/types';
@@ -54,8 +55,24 @@ export function Admin() {
     <div className="max-w-3xl mx-auto space-y-6 animate-in fade-in duration-300">
       <h1 className="text-2xl font-semibold tracking-tight">Usuários</h1>
 
-      {carregando && <p className="text-muted-foreground">Carregando…</p>}
       {erro && <p className="text-destructive text-sm">{erro}</p>}
+
+      {carregando && (
+        <ul className="space-y-3">
+          {[0, 1, 2].map((i) => (
+            <li key={i} className="rounded-2xl border bg-card p-4 shadow-sm space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-3 w-44" />
+                </div>
+                <Skeleton className="h-6 w-24 rounded-full" />
+              </div>
+              <Skeleton className="h-8 w-full" />
+            </li>
+          ))}
+        </ul>
+      )}
 
       <ul className="space-y-3">
         {usuarios.map((u) => (

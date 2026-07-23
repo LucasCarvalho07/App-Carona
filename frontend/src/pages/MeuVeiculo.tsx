@@ -60,9 +60,13 @@ export function MeuVeiculo() {
 
   const veiculoValido = Number(form.consumoKmLitro) > 0 && Number(form.kmPorViagem) > 0;
 
+  const [salvandoVeiculo, setSalvandoVeiculo] = useState(false);
+  const [salvandoPix, setSalvandoPix] = useState(false);
+
   async function salvarVeiculo(e: FormEvent) {
     e.preventDefault();
     if (!veiculoValido) return;
+    setSalvandoVeiculo(true);
     // Um único veículo por usuário; sempre padrão (usado no cálculo da carona).
     const dados = {
       nome: form.nome,
@@ -82,16 +86,21 @@ export function MeuVeiculo() {
       await carregar();
     } catch (erro) {
       sileo.error({ title: erro instanceof Error ? erro.message : 'Falha ao salvar o veículo.' });
+    } finally {
+      setSalvandoVeiculo(false);
     }
   }
 
   async function salvarPix(e: FormEvent) {
     e.preventDefault();
+    setSalvandoPix(true);
     try {
       await api.put('/motorista/config', pix, t);
       sileo.success({ title: 'Dados de recebimento salvos.' });
     } catch (erro) {
       sileo.error({ title: erro instanceof Error ? erro.message : 'Falha ao salvar o recebimento.' });
+    } finally {
+      setSalvandoPix(false);
     }
   }
 
@@ -138,7 +147,7 @@ export function MeuVeiculo() {
               </SelectContent>
             </Select>
           </div>
-          <Button type="submit" disabled={!veiculoValido}>
+          <Button type="submit" disabled={!veiculoValido} loading={salvandoVeiculo}>
             {veiculoId ? 'Salvar alterações' : 'Salvar veículo'}
           </Button>
           {!veiculoValido && (
@@ -179,7 +188,7 @@ export function MeuVeiculo() {
             <input className={inputClass} type="email" placeholder="email@exemplo.com"
               value={pix.emailComprovante ?? ''} onChange={(e) => setPix({ ...pix, emailComprovante: e.target.value })} />
           </div>
-          <Button type="submit">Salvar recebimento</Button>
+          <Button type="submit" loading={salvandoPix}>Salvar recebimento</Button>
         </form>
       </section>
     </div>

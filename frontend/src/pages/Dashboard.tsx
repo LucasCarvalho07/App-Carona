@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/auth';
 import { api } from '@/lib/api';
 import { anoMesAtual, formatarReal, rotuloAnoMes } from '@/lib/ui';
 import { StatusPagamentoBadge } from '@/components/StatusPagamentoBadge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { StatusPagamento, type Marcacao, type PagamentoResumo } from '@/types';
 
 interface Cartao {
@@ -83,7 +84,11 @@ export function Dashboard() {
               <TrendingUp className="size-4" />
             </span>
           </div>
-          <p className="mt-3 text-3xl font-bold tabular-nums">{carregando ? '—' : formatarReal(totalMes)}</p>
+          {carregando ? (
+            <Skeleton className="mt-3 h-9 w-40 bg-white/30" />
+          ) : (
+            <p className="mt-3 text-3xl font-bold tabular-nums">{formatarReal(totalMes)}</p>
+          )}
           <p className="mt-1 text-sm opacity-80">O que você deve somando todas as caronas.</p>
         </div>
 
@@ -98,12 +103,29 @@ export function Dashboard() {
                 <c.icon className="size-4" />
               </span>
             </div>
-            <p className="text-2xl font-semibold tabular-nums">{carregando ? '—' : c.valor}</p>
+            {carregando ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <p className="text-2xl font-semibold tabular-nums">{c.valor}</p>
+            )}
           </div>
         ))}
       </div>
 
-      {semDados ? (
+      {carregando ? (
+        <div className="rounded-2xl border bg-card p-4 sm:p-5 shadow-sm space-y-3">
+          <Skeleton className="h-5 w-32" />
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="flex items-center justify-between py-1">
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-20" />
+              </div>
+              <Skeleton className="h-5 w-16" />
+            </div>
+          ))}
+        </div>
+      ) : semDados ? (
         <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed bg-card/50 p-10 text-center shadow-sm">
           <span className="rounded-2xl bg-primary/10 text-primary p-3">
             <CalendarCheck className="size-6" />

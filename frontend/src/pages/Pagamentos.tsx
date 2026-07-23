@@ -3,6 +3,7 @@ import { sileo } from 'sileo';
 import { Button } from '@/components/ui/button';
 import { PixDialog } from '@/components/PixDialog';
 import { StatusPagamentoBadge } from '@/components/StatusPagamentoBadge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { anoMesAtual, formatarReal, rotuloAnoMes } from '@/lib/ui';
@@ -14,9 +15,15 @@ export function Pagamentos() {
 
   const [anoMes, setAnoMes] = useState(anoMesAtual());
   const [resumo, setResumo] = useState<PagamentoResumo[]>([]);
+  const [carregando, setCarregando] = useState(true);
 
   const carregar = useCallback(async () => {
-    setResumo(await api.get<PagamentoResumo[]>(`/pagamentos/resumo?anoMes=${anoMes}`, t));
+    setCarregando(true);
+    try {
+      setResumo(await api.get<PagamentoResumo[]>(`/pagamentos/resumo?anoMes=${anoMes}`, t));
+    } finally {
+      setCarregando(false);
+    }
   }, [t, anoMes]);
 
   useEffect(() => {
@@ -56,6 +63,20 @@ export function Pagamentos() {
         </div>
       </div>
 
+      {carregando ? (
+        <ul className="space-y-3">
+          {[0, 1, 2].map((i) => (
+            <li key={i} className="rounded-2xl border bg-card p-4 shadow-sm space-y-3">
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-5 w-40" />
+                <Skeleton className="h-5 w-20" />
+              </div>
+              <Skeleton className="h-4 w-28" />
+              <Skeleton className="h-8 w-32" />
+            </li>
+          ))}
+        </ul>
+      ) : (
       <ul className="space-y-3">
         {resumo.map((r) => (
           <li key={r.motoristaId} className="rounded-2xl border bg-card p-4 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 space-y-3 animate-in fade-in">
@@ -83,6 +104,7 @@ export function Pagamentos() {
         ))}
         {resumo.length === 0 && <p className="text-muted-foreground text-sm">Nada a pagar neste mês.</p>}
       </ul>
+      )}
 
       {resumo.length > 0 && (
         <div className="rounded-2xl border bg-muted/40 px-4 py-3 flex justify-between font-semibold">

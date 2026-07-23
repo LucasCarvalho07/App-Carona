@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { sileo } from 'sileo';
 import { Button } from '@/components/ui/button';
 import { StatusPagamentoBadge } from '@/components/StatusPagamentoBadge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { anoMesAtual, formatarReal, rotuloAnoMes } from '@/lib/ui';
@@ -13,9 +14,15 @@ export function Recebimentos() {
 
   const [anoMes, setAnoMes] = useState(anoMesAtual());
   const [itens, setItens] = useState<Recebimento[]>([]);
+  const [carregando, setCarregando] = useState(true);
 
   const carregar = useCallback(async () => {
-    setItens(await api.get<Recebimento[]>(`/pagamentos/recebimentos?anoMes=${anoMes}`, t));
+    setCarregando(true);
+    try {
+      setItens(await api.get<Recebimento[]>(`/pagamentos/recebimentos?anoMes=${anoMes}`, t));
+    } finally {
+      setCarregando(false);
+    }
   }, [t, anoMes]);
 
   useEffect(() => {
@@ -58,17 +65,33 @@ export function Recebimentos() {
         </div>
       </div>
 
-      <Secao titulo="Falta pagar" total={totalReceber} vazio="Ninguém pendente.">
-        {faltaPagar.map((i) => (
-          <LinhaRecebimento key={i.passageiroId} item={i} onAcao={acao} />
-        ))}
-      </Secao>
+      {carregando ? (
+        <ul className="space-y-2">
+          {[0, 1, 2].map((i) => (
+            <li key={i} className="rounded-2xl border bg-card p-4 shadow-sm space-y-3">
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-5 w-36" />
+                <Skeleton className="h-5 w-16" />
+              </div>
+              <Skeleton className="h-8 w-40" />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <>
+          <Secao titulo="Falta pagar" total={totalReceber} vazio="Ninguém pendente.">
+            {faltaPagar.map((i) => (
+              <LinhaRecebimento key={i.passageiroId} item={i} onAcao={acao} />
+            ))}
+          </Secao>
 
-      <Secao titulo="Já pagaram" total={totalRecebido} vazio="Nenhum pagamento confirmado.">
-        {pagaram.map((i) => (
-          <LinhaRecebimento key={i.passageiroId} item={i} onAcao={acao} />
-        ))}
-      </Secao>
+          <Secao titulo="Já pagaram" total={totalRecebido} vazio="Nenhum pagamento confirmado.">
+            {pagaram.map((i) => (
+              <LinhaRecebimento key={i.passageiroId} item={i} onAcao={acao} />
+            ))}
+          </Secao>
+        </>
+      )}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { ptBR } from 'date-fns/locale';
 import { format } from 'date-fns';
 import 'react-day-picker/style.css';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { DetalhesMotorista } from '@/components/DetalhesMotorista';
 import { cn } from '@/lib/utils';
 import { api } from '@/lib/api';
@@ -40,11 +41,17 @@ export function Marcacao() {
   const [mes, setMes] = useState(new Date());
   const [diaSel, setDiaSel] = useState<Date | undefined>(new Date());
   const [carros, setCarros] = useState<EscalaCarro[]>([]);
+  const [carregando, setCarregando] = useState(true);
 
   const anoMes = mes.getFullYear() * 100 + (mes.getMonth() + 1);
 
   const carregar = useCallback(async () => {
-    setCarros(await api.get<EscalaCarro[]>(`/escala?anoMes=${anoMes}`, t));
+    setCarregando(true);
+    try {
+      setCarros(await api.get<EscalaCarro[]>(`/escala?anoMes=${anoMes}`, t));
+    } finally {
+      setCarregando(false);
+    }
   }, [t, anoMes]);
 
   useEffect(() => {
@@ -157,16 +164,29 @@ export function Marcacao() {
             {diaSel ? format(diaSel, "EEEE, dd 'de' MMMM", { locale: ptBR }) : 'Selecione um dia'}
           </h2>
 
-          <BlocoSentido
-            titulo="Ida" cor="emerald" sentido={Sentido.Ida}
-            carros={carrosDoDia(Sentido.Ida)} ehMotorista={ehMotorista}
-            onEntrar={entrar} onSair={sair} onEscalar={escalar} onDesescalar={desescalar}
-          />
-          <BlocoSentido
-            titulo="Volta" cor="sky" sentido={Sentido.Volta}
-            carros={carrosDoDia(Sentido.Volta)} ehMotorista={ehMotorista}
-            onEntrar={entrar} onSair={sair} onEscalar={escalar} onDesescalar={desescalar}
-          />
+          {carregando ? (
+            <>
+              {[0, 1].map((i) => (
+                <div key={i} className="rounded-2xl border bg-card p-4 shadow-sm space-y-3">
+                  <Skeleton className="h-4 w-16" />
+                  <Skeleton className="h-14 w-full rounded-lg" />
+                </div>
+              ))}
+            </>
+          ) : (
+            <>
+              <BlocoSentido
+                titulo="Ida" cor="emerald" sentido={Sentido.Ida}
+                carros={carrosDoDia(Sentido.Ida)} ehMotorista={ehMotorista}
+                onEntrar={entrar} onSair={sair} onEscalar={escalar} onDesescalar={desescalar}
+              />
+              <BlocoSentido
+                titulo="Volta" cor="sky" sentido={Sentido.Volta}
+                carros={carrosDoDia(Sentido.Volta)} ehMotorista={ehMotorista}
+                onEntrar={entrar} onSair={sair} onEscalar={escalar} onDesescalar={desescalar}
+              />
+            </>
+          )}
         </div>
       </div>
     </div>

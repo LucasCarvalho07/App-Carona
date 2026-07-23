@@ -46,6 +46,7 @@ export function ConfigCalculo() {
   const t = token ?? undefined;
 
   const [parametros, setParametros] = useState<ParametroCusto[]>([]);
+  const [salvando, setSalvando] = useState(false);
   const [form, setForm] = useState({
     vigenteDe: hojeIso(),
     precoLitro: '',
@@ -62,6 +63,7 @@ export function ConfigCalculo() {
 
   async function salvar(e: FormEvent) {
     e.preventDefault();
+    setSalvando(true);
     try {
       await api.post('/parametros-custo', {
         vigenteDe: form.vigenteDe,
@@ -72,6 +74,8 @@ export function ConfigCalculo() {
       await carregar();
     } catch (erro) {
       sileo.error({ title: erro instanceof Error ? erro.message : 'Falha ao salvar o parâmetro.' });
+    } finally {
+      setSalvando(false);
     }
   }
 
@@ -100,7 +104,7 @@ export function ConfigCalculo() {
               onChange={(v) => setForm({ ...form, custoKmManutencao: v })} />
           </div>
         </div>
-        <Button type="submit">Salvar parâmetro</Button>
+        <Button type="submit" loading={salvando}>Salvar parâmetro</Button>
       </form>
 
       <ul className="space-y-2">

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BarChart3, CalendarDays, Car, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar } from '@/components/Avatar';
 import { EChart, coresGrafico, paletaGrafico } from '@/components/EChart';
 import { api } from '@/lib/api';
@@ -140,13 +141,22 @@ export function Resumo() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Kpi rotulo="Total no mês" valor={formatarReal(totais.totalMes)} destaque icone={<BarChart3 className="size-5" />} />
-        <Kpi rotulo="Viagens" valor={String(totais.viagens)} icone={<CalendarDays className="size-5" />} />
-        <Kpi rotulo="Motoristas" valor={String(totais.motoristas)} icone={<Car className="size-5" />} />
-        <Kpi rotulo="Passageiros" valor={String(totais.passageiros)} icone={<Users className="size-5" />} />
+        <Kpi rotulo="Total no mês" valor={formatarReal(totais.totalMes)} destaque carregando={carregando} icone={<BarChart3 className="size-5" />} />
+        <Kpi rotulo="Viagens" valor={String(totais.viagens)} carregando={carregando} icone={<CalendarDays className="size-5" />} />
+        <Kpi rotulo="Motoristas" valor={String(totais.motoristas)} carregando={carregando} icone={<Car className="size-5" />} />
+        <Kpi rotulo="Passageiros" valor={String(totais.passageiros)} carregando={carregando} icone={<Users className="size-5" />} />
       </div>
 
-      {carregando && <p className="text-muted-foreground text-sm">Carregando…</p>}
+      {carregando && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {[0, 1].map((i) => (
+            <div key={i} className="rounded-2xl border bg-card p-4 shadow-sm space-y-3">
+              <Skeleton className="h-5 w-40" />
+              <Skeleton className="h-72 w-full rounded-lg" />
+            </div>
+          ))}
+        </div>
+      )}
 
       {vazio && (
         <div className="rounded-2xl border bg-card p-10 text-center shadow-sm">
@@ -187,11 +197,13 @@ function Kpi({
   valor,
   icone,
   destaque,
+  carregando,
 }: {
   rotulo: string;
   valor: string;
   icone: React.ReactNode;
   destaque?: boolean;
+  carregando?: boolean;
 }) {
   if (destaque) {
     return (
@@ -200,7 +212,11 @@ function Kpi({
           <span className="text-sm/none opacity-90">{rotulo}</span>
           {icone}
         </div>
-        <p className="mt-3 text-2xl font-bold tabular-nums">{valor}</p>
+        {carregando ? (
+          <Skeleton className="mt-3 h-8 w-28 bg-white/30" />
+        ) : (
+          <p className="mt-3 text-2xl font-bold tabular-nums">{valor}</p>
+        )}
       </div>
     );
   }
@@ -210,7 +226,11 @@ function Kpi({
         <span className="text-sm">{rotulo}</span>
         {icone}
       </div>
-      <p className="mt-3 text-2xl font-bold tabular-nums">{valor}</p>
+      {carregando ? (
+        <Skeleton className="mt-3 h-8 w-16" />
+      ) : (
+        <p className="mt-3 text-2xl font-bold tabular-nums">{valor}</p>
+      )}
     </div>
   );
 }
