@@ -25,6 +25,7 @@ export interface Usuario {
   papeis: Papel[];
   criadoEm: string;
   ehMasterPrincipal?: boolean;
+  emailVerificado?: boolean;
 }
 
 export interface AuthResponse {
