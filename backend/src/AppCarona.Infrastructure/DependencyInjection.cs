@@ -47,9 +47,20 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
 
-        // Envio de e-mail (SMTP genérico)
+        // Envio de e-mail: Brevo (API HTTP) se houver ApiKey; senão SMTP (dev/local).
+        // Em produção (Render), SMTP é bloqueado — usar Brevo.
         services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.Secao));
-        services.AddScoped<IEmailSender, SmtpEmailSender>();
+        services.Configure<BrevoOptions>(configuration.GetSection(BrevoOptions.Secao));
+
+        var brevoApiKey = configuration["Brevo:ApiKey"];
+        if (!string.IsNullOrWhiteSpace(brevoApiKey))
+        {
+            services.AddHttpClient<IEmailSender, BrevoEmailSender>();
+        }
+        else
+        {
+            services.AddScoped<IEmailSender, SmtpEmailSender>();
+        }
 
         return services;
     }

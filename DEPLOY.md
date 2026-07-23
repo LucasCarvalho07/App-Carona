@@ -23,6 +23,15 @@ Pré-requisito: o repositório já no **GitHub**.
    ```
    Guarde essa string — é o `ConnectionStrings__Postgres`.
 
+## 2b. E-mail — Brevo (API HTTP)
+
+O Render bloqueia SMTP, então o envio usa a API do Brevo:
+
+1. Cria conta grátis em https://www.brevo.com (300 e-mails/dia).
+2. **Senders & IP** → **Senders** → adiciona/verifica o remetente `app.caronaabase@gmail.com`
+   (o Brevo manda um e-mail de confirmação para esse endereço; confirme).
+3. **SMTP & API** → **API Keys** → **Generate a new API key** (v3). Copia a chave → é o `Brevo__ApiKey`.
+
 ## 2. API — Render
 
 1. Cria conta em https://render.com → **New → Web Service** → conecta o repo do GitHub.
@@ -40,14 +49,15 @@ Pré-requisito: o repositório já no **GitHub**.
    | `Jwt__Key` | uma chave forte aleatória (ver abaixo) |
    | `Admin__MasterEmails__0` | seu e-mail de master principal |
    | `Authentication__Google__ClientId` | seu Client ID do Google |
-   | `Smtp__Host` | `smtp.gmail.com` |
-   | `Smtp__Port` | `587` |
-   | `Smtp__Usuario` | `app.caronaabase@gmail.com` |
-   | `Smtp__Senha` | app password do Gmail |
-   | `Smtp__Remetente` | `app.caronaabase@gmail.com` |
-   | `Smtp__RemetenteNome` | `App Carona` |
+   | `Brevo__ApiKey` | chave da API do Brevo (ver passo 2b) |
+   | `Brevo__Remetente` | `app.caronaabase@gmail.com` (remetente verificado no Brevo) |
+   | `Brevo__RemetenteNome` | `App Carona` |
    | `Cors__Origins__0` | (preencher depois com a URL do Cloudflare Pages) |
    | `NHibernate__ExportarSchema` | `true` (cria o schema no 1º deploy) |
+
+   > **Não use SMTP no Render** — o Render bloqueia as portas de SMTP (25/465/587). Por isso o
+   > envio em produção usa a **API HTTP do Brevo** (porta 443). Se `Brevo__ApiKey` estiver definida,
+   > a app usa Brevo automaticamente; senão cai no SMTP (dev local).
 
    Gerar a chave JWT (qualquer terminal):
    ```
@@ -83,7 +93,7 @@ Pré-requisito: o repositório já no **GitHub**.
 
 1. Abre `https://app-carona.pages.dev`.
 2. Cadastra com o e-mail definido em `Admin__MasterEmails__0` → recebe o **código de verificação
-   por e-mail** (SMTP real em produção) → confirma → vira **master principal**.
+   por e-mail** (enviado pelo Brevo) → confirma → vira **master principal**.
 3. Demais usuários se cadastram → você aprova/promove pela tela **Usuários**.
 
 ---
