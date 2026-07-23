@@ -1,0 +1,6 @@
+@AppCarona.Api_HostAddress = http://localhost:5120
+
+GET {{AppCarona.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

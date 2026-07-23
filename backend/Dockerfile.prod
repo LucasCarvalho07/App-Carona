@@ -1,0 +1,21 @@
+# Imagem de produção multi-stage: build com SDK, runtime enxuto sem SDK, usuário não-root.
+# Contexto de build esperado: ./backend
+
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+COPY . .
+RUN dotnet restore AppCarona.slnx
+RUN dotnet publish src/AppCarona.Api/AppCarona.Api.csproj -c Release -o /app --no-restore
+
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+WORKDIR /app
+COPY --from=build /app .
+
+# Usuário não-root (a imagem .NET já define o usuário 'app').
+USER app
+
+# A plataforma (Render) injeta a porta em $PORT; a app escuta nela (fallback 8080).
+# 'exec' repassa sinais (SIGTERM) ao dotnet para shutdown limpo.
+ENV ASPNETCORE_URLS=http://+:8080
+EXPOSE 8080
+CMD ["sh", "-c", "ASPNETCORE_URLS=http://+:${PORT:-8080} exec dotnet AppCarona.Api.dll"]

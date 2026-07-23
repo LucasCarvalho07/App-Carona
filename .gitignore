@@ -1,0 +1,29 @@
+# .NET
+[Bb]in/
+[Oo]bj/
+*.user
+appsettings.*.local.json
+# Segredos de dev: não versionar (usar User Secrets / variáveis de ambiente)
+appsettings.Development.json
+
+# Node / Vite
+node_modules/
+frontend/dist/
+*.local
+
+# IDE
+.vs/
+.idea/
+*.swp
+
+# Ferramentas locais (Claude Code: skills, settings) — não versionar
+.claude/
+
+# Env / segredos
+.env
+.env.*
+!.env.example
+
+# OS
+Thumbs.db
+.DS_Store

@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AppCarona.Api/AppCarona.Api.csproj" />
+    <Project Path="src/AppCarona.Application/AppCarona.Application.csproj" />
+    <Project Path="src/AppCarona.Contracts/AppCarona.Contracts.csproj" />
+    <Project Path="src/AppCarona.Domain/AppCarona.Domain.csproj" />
+    <Project Path="src/AppCarona.Infrastructure/AppCarona.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/AppCarona.Tests/AppCarona.Tests.csproj" />
+  </Folder>
+</Solution>
